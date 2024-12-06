@@ -1,0 +1,12 @@
+[Unit]
+Description=Delay Alert Audio Monitor
+After=network.target
+
+[Service]
+Type=simple
+User=YOUR_USER
+WorkingDirectory=APP_INSTALL_DIR
+ExecStart=APP_INSTALL_DIR/venv/bin/python console.py
+
+[Install]
+WantedBy=multi-user.target
