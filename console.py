@@ -91,6 +91,7 @@ def update_config():
         return redirect('/?e=integers&p='+form_data['profile'])
     with open(config_path, 'w') as configfile:
         config.write(configfile)
+    monitor.logger.info("Updated "+form_data['profile']+" profile")
     return redirect('/?p='+form_data['profile'])
 
 @app.route('/change-status', methods=['GET'])
@@ -100,6 +101,7 @@ def change_status():
         monitor.enabled = False
     else:
         monitor.enabled = True
+    monitor.logger.info("Updated status - enabled: "+str(monitor.enabled))
     return redirect('/')
 
 @app.route('/test', methods=['GET'])
@@ -110,8 +112,10 @@ def test_profile():
             monitor.test_profile("Night")
         if request.args.get('profile') == "Morning":
             monitor.test_profile("Morning")
+        monitor.logger.info("Testing "+request.args.get('profile')+" profile")
     else:
         monitor.test_profile("")
+        monitor.logger.info("Stopped testing")
     return redirect('/?p='+request.args.get('profile'))
 
 @app.route('/average', methods=['GET'])

@@ -28,6 +28,8 @@ class AudioMonitor:
             self.config['Setup']['twilio_account_sid'],
             self.config['Setup']['twilio_auth_token']
         )
+        logging.getLogger('twilio.http_client').setLevel(logging.WARNING)
+        
         self.twilio_from = self.config['Setup']['from_number']
         self.twilio_to = self.config['Setup']['to_number']
 
@@ -128,7 +130,6 @@ class AudioMonitor:
             if len(self.prod_audio_levels) == self.prod_audio_levels.maxlen:
                 window_avg = sum(self.prod_audio_levels) / len(self.prod_audio_levels)
                 if window_avg > self.threshold:
-                    self.logger.warning(f"Threshold exceeded: {window_avg:.2f}")
                     self.make_call()
 
     def calculate_rms(self, audio_chunk):
@@ -148,11 +149,10 @@ class AudioMonitor:
                     from_=self.twilio_from
                 )
                 self.logger.info(f"Alert call made: {call.sid}")
+                self.logger.info(f"Beginning cooldown period of {self.call_cooldown} seconds")
                 self.last_call_time = current_time
             except Exception as e:
                 self.logger.error(f"Error making Twilio call: {e}")
-        else:
-            self.logger.info("Call skipped - within cooldown period")
 
     def cleanup(self):
         subprocess.run(
