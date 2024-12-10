@@ -99,10 +99,10 @@ class AudioMonitor:
         current_time = int(datetime.now().strftime("%H%M"))
 
         # if night_start is past midnight, go to bed earlier
-        if current_time > night_start or current_time < morning_start:
+        if current_time >= night_start or current_time < morning_start:
             if self.profile != "Night":
                 self.update_config("Night")
-        elif current_time > morning_start and current_time < morning_end:  
+        elif current_time >= morning_start and current_time < morning_end:  
             if self.profile != "Morning":
                 self.update_config("Morning")
         else:
