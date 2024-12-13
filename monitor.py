@@ -134,8 +134,8 @@ class AudioMonitor:
 
     def calculate_rms(self, audio_chunk):
         try:
-            normalized = audio_chunk.astype(float) / 32768.0
-            return np.sqrt(np.mean(np.square(normalized))) * 1000
+            normalized_array = audio_chunk.astype(float) / 32768.0
+            return np.sqrt(np.mean(np.square(normalized_array))) * 1000
         except:
             return 0
 
