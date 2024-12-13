@@ -23,7 +23,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Install additional packages on Raspbian
+### Install additional packages
 ```
 sudo apt install libopenblas0 portaudio19-dev 
 ```
