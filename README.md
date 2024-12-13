@@ -1,3 +1,9 @@
+# Requirements
+
+1. Read the [blog post](https://benkofman.com/2024/12/13/monitor.html) for context
+2. A Wi-Fi camera with an RTSP feed
+3. A local linux server like a Raspberry Pi or VM running on a PC that's always on
+
 # Setup
 Clone repo into a permanent directory such as `/var/www/html` or `/opt`
 ```
