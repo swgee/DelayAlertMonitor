@@ -10,7 +10,7 @@ import subprocess
 import atexit
 
 class AudioMonitor:
-    def __init__(self, config_path='config.ini', fifo_path='/tmp/audio_monitor_fifo'):
+    def __init__(self):
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s'
@@ -18,11 +18,11 @@ class AudioMonitor:
         self.logger = logging.getLogger(__name__)
 
         self.config = configparser.ConfigParser()
-        self.config.read(config_path)
+        self.config.read('config.ini')
         
         self.mean_hertz = int(self.config['Setup']['mean_hertz'])
         self.rtsp_url = self.config['Setup']['rtsp']
-        self.fifo_path = fifo_path
+        self.fifo_path = '/tmp/audio_monitor_fifo'
         
         self.twilio_client = Client(
             self.config['Setup']['twilio_account_sid'],
@@ -60,7 +60,7 @@ class AudioMonitor:
                {self.fifo_path} > /dev/null 2>&1 &
         """
         subprocess.Popen(cmd, shell=True)
-        self.logger.info("Started ffmpeg process")
+        self.logger.info("Started FFmpeg process")
 
     def run(self):
         try:
@@ -78,7 +78,9 @@ class AudioMonitor:
                     
                     in_bytes = fifo.read(CHUNK_SIZE * 2)  # 16-bit = 2 bytes per sample
                     if not in_bytes:
-                        raise Exception("End of stream")
+                        self.logger.info("No data retrieved from FFmpeg, restarting process")
+                        self.cleanup()
+                        self.start_ffmpeg()
                     
                     audio_chunk = np.frombuffer(in_bytes, np.int16)
                     self.check_audio_levels(audio_chunk)
@@ -171,7 +173,7 @@ class AudioMonitor:
         return f"{(sum(self.console_audio_levels) / len(self.console_audio_levels)):.4f}"
     
     def test_profile(self, profile):
-        self.config.read('config_path')
+        self.config.read('config.ini')
         if profile == "":
             self.testing = ""
         else:
