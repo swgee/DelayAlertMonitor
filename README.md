@@ -42,6 +42,20 @@ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 3
 ```
 To enable HTTP Basic Auth, change `auth_enabled` to "true" in `config.ini` and change username and password
 
+### Set up logging directory
+Modify YOUR_USER below
+```
+sudo bash -c "echo '/var/log/monitor.log {
+    daily
+    rotate 7
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 640 YOUR_USER YOUR_USER
+}' > /etc/logrotate.d/monitor"
+```
+
 ### Create and activate service
 Modify `YOUR_USER` and `APP_INSTALL_DIR` in `monitor.service`
 ```

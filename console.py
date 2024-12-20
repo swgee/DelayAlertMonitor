@@ -19,7 +19,7 @@ users = {
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
-monitor = AudioMonitor()
+monitor = AudioMonitor(True)
 
 def check_auth(username, password):
     return username in users and check_password_hash(users.get(username), password)

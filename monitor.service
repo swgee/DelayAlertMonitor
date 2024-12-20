@@ -7,6 +7,8 @@ Type=simple
 User=YOUR_USER
 WorkingDirectory=APP_INSTALL_DIR
 ExecStart=APP_INSTALL_DIR/venv/bin/python console.py
+StandardOutput=append:/var/log/monitor.log
+StandardError=inherit
 
 [Install]
 WantedBy=multi-user.target
