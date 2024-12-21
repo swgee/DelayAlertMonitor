@@ -78,6 +78,8 @@ class AudioMonitor:
                         self.check_time()
                     
                     in_bytes = fifo.read(CHUNK_SIZE * 2)  # 16-bit = 2 bytes per sample
+                    if not in_bytes:
+                        raise Exception("End of stream")
                     
                     audio_chunk = np.frombuffer(in_bytes, np.int16)
                     self.check_audio_levels(audio_chunk)
