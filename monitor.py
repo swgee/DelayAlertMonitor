@@ -35,6 +35,8 @@ class AudioMonitor:
 
         self.console_window_size = 5  # seconds
         self.console_audio_levels = deque(maxlen=self.console_window_size * self.mean_hertz)
+        self.logging_window_size = 600  # seconds
+        self.logging_audio_levels = deque(maxlen=self.logging_window_size * self.mean_hertz)
 
         self.last_call_time = 0
         self.profile = ""
@@ -72,10 +74,19 @@ class AudioMonitor:
                 fifo.read(44)
                 
                 CHUNK_SIZE = int(44100 / self.mean_hertz)
-                
+                average_logged = False
+
                 while True:
                     if datetime.now().second == 0 and self.testing == "": # check every minute
                         self.check_time()
+
+                    if datetime.now().minute % 10 == 0:
+                        if not average_logged:
+                            ten_min_average = f"{(sum(self.logging_audio_levels) / len(self.logging_audio_levels)):.4f}"
+                            self.logger.info("Last 10-minute sound average: "+ten_min_average)
+                            average_logged = True
+                    else:
+                        average_logged = False
                     
                     in_bytes = fifo.read(CHUNK_SIZE * 2)  # 16-bit = 2 bytes per sample
                     if not in_bytes:
@@ -122,6 +133,7 @@ class AudioMonitor:
     def check_audio_levels(self, audio_chunk):
         current_rms = self.calculate_rms(audio_chunk)
         self.console_audio_levels.append(current_rms)
+        self.logging_audio_levels.append(current_rms)
 
         # Uncomment below to debug RTSP audio feed
         # self.logger.info(f"RMS: {current_rms}")
