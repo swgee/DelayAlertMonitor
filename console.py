@@ -120,7 +120,7 @@ def test_profile():
 
 @app.route('/average', methods=['GET'])
 def get_average():
-    return jsonify({'average': monitor.get_window_average()}), 200
+    return jsonify({'average': f"{monitor.get_console_average():.4f}"}), 200
 
 if __name__ == '__main__':
     monitor_thread = threading.Thread(target=monitor.run, daemon=True)

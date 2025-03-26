@@ -95,6 +95,9 @@ class AudioMonitor:
                     audio_chunk = np.frombuffer(in_bytes, np.int16)
                     self.check_audio_levels(audio_chunk)
 
+                    if self.get_console_average() == 0:
+                        raise Exception("Zero value chunks")
+
         except KeyboardInterrupt:
             self.logger.info("Monitoring stopped by user")
         except Exception as e:
@@ -178,10 +181,11 @@ class AudioMonitor:
         
         self.logger.info("Cleanup completed")
 
-    def get_window_average(self):
-        if not self.console_audio_levels:
+    def get_console_average(self):
+        if len(self.console_audio_levels) > 0:
+            return sum(self.console_audio_levels) / len(self.console_audio_levels)
+        else:
             return 0
-        return f"{(sum(self.console_audio_levels) / len(self.console_audio_levels)):.4f}"
     
     def test_profile(self, profile):
         self.config.read('config.ini')
