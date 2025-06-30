@@ -79,14 +79,6 @@ class AudioMonitor:
                 while True:
                     if datetime.now().second == 0 and self.testing == "": # check every minute
                         self.check_time()
-
-                    if datetime.now().minute % 10 == 0:
-                        if not average_logged:
-                            ten_min_average = f"{(sum(self.logging_audio_levels) / len(self.logging_audio_levels)):.4f}"
-                            self.logger.info("Last 10-minute sound average: "+ten_min_average)
-                            average_logged = True
-                    else:
-                        average_logged = False
                     
                     in_bytes = fifo.read(CHUNK_SIZE * 2)  # 16-bit = 2 bytes per sample
                     if not in_bytes:
@@ -95,8 +87,16 @@ class AudioMonitor:
                     audio_chunk = np.frombuffer(in_bytes, np.int16)
                     self.check_audio_levels(audio_chunk)
 
-                    if self.get_console_average() == 0:
+                    if self.get_console_average() < 0.001:
                         raise Exception("Zero value chunks")
+                    
+                    if datetime.now().minute % 10 == 0:
+                        if not average_logged:
+                            ten_min_average = f"{(sum(self.logging_audio_levels) / len(self.logging_audio_levels)):.4f}"
+                            self.logger.info("Last 10-minute sound average: "+ten_min_average)
+                            average_logged = True
+                    else:
+                        average_logged = False
 
         except KeyboardInterrupt:
             self.logger.info("Monitoring stopped by user")
