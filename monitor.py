@@ -35,8 +35,8 @@ class AudioMonitor:
 
         self.console_window_size = 5  # seconds
         self.console_audio_levels = deque(maxlen=self.console_window_size * self.mean_hertz)
-        self.logging_window_size = 600  # seconds
-        self.logging_audio_levels = deque(maxlen=self.logging_window_size * self.mean_hertz)
+        self.logging_window_size = 10  # minutes
+        self.logging_audio_levels = deque(maxlen=self.logging_window_size * 60 * self.mean_hertz)
 
         self.last_call_time = 0
         self.profile = ""
@@ -127,7 +127,7 @@ class AudioMonitor:
     def update_config(self, profile):
         self.profile = profile
         self.threshold = int(self.config[profile]['threshold'])
-        self.prod_window_size = int(self.config[profile]['window_size'])
+        self.prod_window_size = int(self.config[profile]['window_size']) * 60
         self.call_cooldown = int(self.config[profile]['cooldown_minutes']) * 60
 
         self.prod_audio_levels = deque(maxlen=self.prod_window_size * self.mean_hertz)
@@ -196,9 +196,13 @@ class AudioMonitor:
             self.threshold = int(self.config[profile]['threshold'])
             self.call_cooldown = int(self.config[profile]['cooldown_minutes']) * 60
 
-            self.prod_window_size = int(self.config[profile]['window_size'])
+            self.prod_window_size = int(self.config[profile]['window_size']) * 60
             self.prod_audio_levels = deque(maxlen=self.prod_window_size * self.mean_hertz)
-            
+    
+    def update_twilio_to(self, new_to_number):
+        self.twilio_to = new_to_number
+        self.logger.info(f"Twilio 'to' number updated to: {new_to_number}")
+
 
 if __name__ == '__main__':
     monitor = AudioMonitor(False)

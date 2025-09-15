@@ -48,7 +48,9 @@ def requires_auth(f):
 def home():
     config.read(config_path)
     profiles = ["Night","Morning"]
-        
+    phone_numbers = config['PhoneNumbers']['numbers'].split(',')
+    current_to_number = monitor.twilio_to
+
     if not request.args.get('p') or request.args.get('p') not in profiles:
         selected_profile = profiles[0]
     else:
@@ -73,7 +75,9 @@ def home():
                             morning_end=config['Times']["morning_end"],
                             error=error,
                             current_profile=current_profile,
-                            testing=testing)
+                            testing=testing,
+                            phone_numbers=phone_numbers,
+                            current_to_number=current_to_number)
 
 @app.route('/update', methods=['POST'])
 @requires_auth
@@ -117,6 +121,19 @@ def test_profile():
         monitor.test_profile("")
         monitor.logger.info("Stopped testing")
     return redirect('/?p='+request.args.get('profile'))
+
+@app.route('/update-number', methods=['POST'])
+@requires_auth
+def update_number():
+    config.read(config_path)
+    new_to_number = request.form.get('to_number')
+    if new_to_number:
+        monitor.twilio_to = new_to_number
+        config['Setup']['to_number'] = new_to_number
+        with open(config_path, 'w') as configfile:
+            config.write(configfile)
+        monitor.logger.info(f"Updated Twilio 'to' number to: {new_to_number}")
+    return "OK", 200
 
 @app.route('/average', methods=['GET'])
 def get_average():

@@ -85,7 +85,6 @@
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            margin-bottom: 2rem;
             font-size: 14px;
             background-color: white;
         }
@@ -101,6 +100,10 @@
 
         .average {
             margin-top: 2rem;
+        }
+
+        p {
+            font-weight: bold;
         }
 
         @media (max-width: 600px) {
@@ -120,7 +123,7 @@
             }
 
             .setting-input {
-                width: 100%;
+                width: 90%;
                 margin: 0;
             }
 
@@ -155,6 +158,17 @@
             {% endif %}
         {% endif %}
 
+        <div class="setting-row">
+            <span class="setting-label">Select number to call</span>
+            <select class="dropdown" name="to_number" onchange="updateToNumber(this.value)">
+                {% for number in phone_numbers %}
+                    <option value="{{ number }}" {% if number == current_to_number %}selected{% endif %}>
+                        {{ number }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
         <div class="time-range">
             <span>Night start time: {{ night_start }}</span>
             <span>Morning start time: {{ morning_start }}</span>
@@ -162,7 +176,7 @@
         </div>
 
         <form action="/update" method="post">
-            <select class="dropdown" name="profile" id="profile" onchange="changeProfile()">
+            <select style="margin-bottom: 1rem" class="dropdown" name="profile" id="profile" onchange="changeProfile()">
                 {% for profile in profiles %}
                     <option value="{{ profile }}" {% if profile == selected_profile %}selected{% endif %}>
                         {{ profile }}
@@ -176,7 +190,7 @@
             </div>
 
             <div class="setting-row">
-                <span class="setting-label">Window Size (Seconds)</span>
+                <span class="setting-label">Window Size (Minutes)</span>
                 <input type="text" class="setting-input" name="window" value="{{ window }}">
             </div>
 
@@ -220,6 +234,16 @@
         if (selected_value) {
             window.location.href = "/?p="+selected_value;
         }
+    }
+
+    function updateToNumber(selectedNumber) {
+        fetch('/update-number', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `to_number=${encodeURIComponent(selectedNumber)}`
+        });
     }
 </script>
 </html>
